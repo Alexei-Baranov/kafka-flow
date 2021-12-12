@@ -73,5 +73,7 @@ namespace KafkaFlow
         /// Resume Kafka's message fetch
         /// </summary>
         void Resume();
+
+        void SetLastMessage(DateTime timeStamp);
     }
 }

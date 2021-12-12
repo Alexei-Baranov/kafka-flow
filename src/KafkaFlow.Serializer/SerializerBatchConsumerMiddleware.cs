@@ -1,23 +1,26 @@
 ﻿namespace KafkaFlow
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
+    using KafkaFlow.BatchConsume;
 
     /// <summary>
-    /// Middleware to deserialize messages when consuming
+    /// Middleware to deserialize batch messages when consuming
     /// </summary>
-    public class SerializerConsumerMiddleware : IMessageMiddleware
+    public class SerializerBatchConsumerMiddleware : IMessageMiddleware
     {
         private readonly ISerializer serializer;
         private readonly IMessageTypeResolver typeResolver;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SerializerConsumerMiddleware"/> class.
+        /// Initializes a new instance of the <see cref="SerializerBatchConsumerMiddleware"/> class.
         /// </summary>
         /// <param name="serializer">Instance of <see cref="ISerializer"/></param>
         /// <param name="typeResolver">Instance of <see cref="IMessageTypeResolver"/></param>
-        public SerializerConsumerMiddleware(
+        public SerializerBatchConsumerMiddleware(
             ISerializer serializer,
             IMessageTypeResolver typeResolver)
         {
@@ -47,22 +50,33 @@
                 return;
             }
 
-            if (context.Message.Value is not byte[] rawData)
+            var messageContexts = context.Message.Value as List<IMessageContext>;
+
+            if (messageContexts.Any(messageContext => messageContext.Message.Value == null))
             {
                 throw new InvalidOperationException(
                     $"{nameof(context.Message)} must be a byte array to be deserialized and it is '{context.Message.GetType().FullName}'");
             }
 
-            using var stream = new MemoryStream(rawData);
+            List<IMessageContext> contexts = new List<IMessageContext>(); 
 
-            var data = await this.serializer
-                .DeserializeAsync(
-                    stream,
-                    messageType,
-                    new SerializerContext(context.ConsumerContext.Topic))
-                .ConfigureAwait(false);
+            foreach (var messageContext in messageContexts)
+            {
+                using (var stream = new MemoryStream(messageContext.Message.Value as byte[] ?? Array.Empty<byte>()))
+                {
+                    var data = await this.serializer
+                        .DeserializeAsync(
+                            stream,
+                            messageType,
+                            new SerializerContext(messageContext.ConsumerContext.Topic))
+                        .ConfigureAwait(false);
+                    contexts.Add(messageContext.SetMessage(messageContext.Message.Key, data));
+                }
+            }
 
-            await next(context.SetMessage(context.Message.Key, data)).ConfigureAwait(false);
+            var batchContext = new BatchConsumeMessageContext(context.ConsumerContext, contexts);
+
+            await next(batchContext).ConfigureAwait(false);
         }
     }
 }

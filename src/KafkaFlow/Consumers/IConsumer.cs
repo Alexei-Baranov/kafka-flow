@@ -40,6 +40,11 @@ namespace KafkaFlow.Consumers
         ConsumerStatus Status { get; }
 
         /// <summary>
+        /// Gets or sets dateTime last message
+        /// </summary>
+        DateTime LastMessage { get; set; }
+
+        /// <summary>
         /// Gets the lag of each topic/partitions assigned
         /// </summary>
         /// <returns>The list of topic, partition and lag</returns>

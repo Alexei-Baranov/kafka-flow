@@ -56,6 +56,8 @@
                 var batchContext = new BatchConsumeMessageContext(context.ConsumerContext, localBatch);
 
                 await next(batchContext).ConfigureAwait(false);
+
+                context.ConsumerContext.SetLastMessage(context.ConsumerContext.MessageTimestamp);
             }
             catch (Exception ex)
             {

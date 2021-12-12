@@ -50,5 +50,10 @@ namespace KafkaFlow.Consumers
         public void Pause() => this.consumer.FlowManager.Pause(this.consumer.Assignment);
 
         public void Resume() => this.consumer.FlowManager.Resume(this.consumer.Assignment);
+
+        public void SetLastMessage(DateTime timeStamp)
+        {
+            this.consumer.LastMessage = timeStamp;
+        }
     }
 }

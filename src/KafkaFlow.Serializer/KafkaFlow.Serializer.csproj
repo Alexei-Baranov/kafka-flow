@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\KafkaFlow.Abstractions\KafkaFlow.Abstractions.csproj" />
+        <ProjectReference Include="..\KafkaFlow.BatchConsume\KafkaFlow.BatchConsume.csproj" />
     </ItemGroup>
 
     <ItemGroup>

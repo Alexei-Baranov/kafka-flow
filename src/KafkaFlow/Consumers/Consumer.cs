@@ -13,6 +13,8 @@ namespace KafkaFlow.Consumers
         private readonly IDependencyResolver dependencyResolver;
         private readonly ILogHandler logHandler;
 
+        public DateTime LastMessage { get; set; }
+
         private readonly List<Action<IDependencyResolver, IConsumer<byte[], byte[]>, List<TopicPartition>>>
             partitionsAssignedHandlers = new();
 

@@ -3,7 +3,7 @@ namespace KafkaFlow.BatchConsume
     using System;
     using System.Collections.Generic;
 
-    internal class BatchConsumeMessageContext : IMessageContext
+    public class BatchConsumeMessageContext : IMessageContext
     {
         public BatchConsumeMessageContext(
             IConsumerContext consumer,

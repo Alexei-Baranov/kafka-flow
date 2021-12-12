@@ -51,6 +51,28 @@
         }
 
         /// <summary>
+        /// Register a middleware to deserialize messages
+        /// </summary>
+        /// <param name="middlewares">The middleware configuration builder</param>
+        /// <typeparam name="TSerializer">A class that implements <see cref="ISerializer"/></typeparam>
+        /// <typeparam name="TResolver">A class that implements <see cref="IMessageTypeResolver"/></typeparam>
+        /// <param name="serializerFactory">A factory to create a <see cref="ISerializer"/></param>
+        /// <param name="resolverFactory">A factory to create a <see cref="IMessageTypeResolver"/></param>
+        /// <returns></returns>
+        public static IConsumerMiddlewareConfigurationBuilder AddBatchSerializer<TSerializer, TResolver>(
+            this IConsumerMiddlewareConfigurationBuilder middlewares,
+            Factory<TSerializer> serializerFactory,
+            Factory<TResolver> resolverFactory)
+            where TSerializer : class, ISerializer
+            where TResolver : class, IMessageTypeResolver
+        {
+            return middlewares.Add(
+                resolver => new SerializerBatchConsumerMiddleware(
+                    serializerFactory(resolver),
+                    resolverFactory(resolver)));
+        }
+
+        /// <summary>
         /// Registers a middleware to deserialize messages
         /// </summary>
         /// <param name="middlewares">The middleware configuration builder</param>
