@@ -39,10 +39,10 @@ namespace KafkaFlow.UnitTests.Serializers
                 .Returns((Type) null);
 
             // Act
-            await this.target.Invoke(this.contextMock.Object, _ => this.SetNextCalled());
+            Func<Task> act = () => this.target.Invoke(this.contextMock.Object, _ => this.SetNextCalled());
 
             // Assert
-            this.nextCalled.Should().BeFalse();
+            act.Should().Throw<ArgumentException>();
             this.typeResolverMock.VerifyAll();
             this.contextMock.Verify(x => x.SetMessage(It.IsAny<object>(), It.IsAny<object>()), Times.Never);
             this.serializerMock.Verify(
