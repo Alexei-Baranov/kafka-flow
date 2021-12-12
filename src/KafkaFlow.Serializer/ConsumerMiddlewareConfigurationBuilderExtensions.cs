@@ -29,6 +29,26 @@
         }
 
         /// <summary>
+        /// Registers a middleware to deserialize messages
+        /// </summary>
+        /// <param name="middlewares">The middleware configuration builder</param>
+        /// <typeparam name="TSerializer">A class that implements <see cref="ISerializer"/></typeparam>
+        /// <typeparam name="TResolver">A class that implements <see cref="IMessageTypeResolver"/></typeparam>
+        /// <returns></returns>
+        public static IConsumerMiddlewareConfigurationBuilder AddBatchSerializer<TSerializer, TResolver>(
+            this IConsumerMiddlewareConfigurationBuilder middlewares)
+            where TSerializer : class, ISerializer
+            where TResolver : class, IMessageTypeResolver
+        {
+            middlewares.DependencyConfigurator.AddTransient<TResolver>();
+            middlewares.DependencyConfigurator.AddTransient<TSerializer>();
+
+            return middlewares.AddBatchSerializer(
+                resolver => resolver.Resolve<TSerializer>(),
+                resolver => resolver.Resolve<TResolver>());
+        }
+
+        /// <summary>
         /// Register a middleware to deserialize messages
         /// </summary>
         /// <param name="middlewares">The middleware configuration builder</param>
